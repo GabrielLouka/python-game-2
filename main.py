@@ -1,2 +1,4 @@
 if __name__ == "__main__":
-    print("setup test")
+    # will contain the game loop 
+    
+    pass
