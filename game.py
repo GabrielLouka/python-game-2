@@ -7,6 +7,8 @@ import pygame as pg
 #
 #
 # **Moves logic : reflect the soldier's image depending on input (in this case : A and D/Left and Right arrows)
-
+#
+#
+# THIS FILE WILL CONTAIN THE GENERAL LOGIC OF THE GAME AND ALL IMPORTS FROM MODULES AND PACKAGES
 
 
