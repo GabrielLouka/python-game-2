@@ -11,4 +11,24 @@ import pygame as pg
 #
 # THIS FILE WILL CONTAIN THE GENERAL LOGIC OF THE GAME AND ALL IMPORTS FROM MODULES AND PACKAGES
 
+WINDOW_WINDTH, WINDOW_HEIGHT = 1000, 800
+GAME_WINDOW = pg.display.set_mode((WINDOW_WINDTH, WINDOW_HEIGHT))
+WHITE = (0, 0, 0) 
+
+pg.display.set_caption("Shoot the targets !")
+
+def main():
+    gameRunning = True
+    while(gameRunning):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                gameRunning = False
+                pg.quit()
+        
+        GAME_WINDOW.fill(WHITE)
+
+
+if __name__ == "__main__":
+    main() 
+
 
