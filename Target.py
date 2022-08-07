@@ -1,1 +1,0 @@
-# create a class Target that inherits form the Rectangle object
