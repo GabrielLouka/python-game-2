@@ -1,4 +1,3 @@
-from asyncio import FastChildWatcher
 import pygame as pg
 import os               # will be used to get the images
 
@@ -10,7 +9,7 @@ FPS = 60
 WIDTH, HEIGHT = 1100, 800
 WHITE = (255, 255, 255)
 SOLDIER_SIZE = (70, 90)
-MOVING_SPEED = 20
+MOVING_SPEED = 5
 
 window = pg.display.set_mode((WIDTH, HEIGHT))
 
@@ -22,17 +21,15 @@ rotatedSoldierImage = pg.transform.flip(soldierImage, False, True)
 targetImage = pg.image.load(os.path.join("images", "target.png"))
 
 
-def moveSoldier(event, soldier):
-    if event.type == pg.KEYDOWN:
-        if event.key == pg.K_w:
-            soldier.y -= MOVING_SPEED
-        if event.key == pg.K_s:
-            soldier.y += MOVING_SPEED
-        if event.key == pg.K_d:
-            soldier.x += MOVING_SPEED
-        if event.key == pg.K_a:
-            
-            soldier.x -= MOVING_SPEED
+def moveSoldier(events : list, soldier):
+    if events[pg.K_w]:
+        soldier.y -= MOVING_SPEED
+    if events[pg.K_s]:
+        soldier.y += MOVING_SPEED
+    if events[pg.K_d]:
+        soldier.x += MOVING_SPEED
+    if events[pg.K_a]:        
+        soldier.x -= MOVING_SPEED
             
 
 
@@ -59,11 +56,11 @@ def main():
             if event.type == pg.QUIT:
                 gameIsRunning = False
 
-            moveSoldier(event, soldier)
 
                 
 
-        
+        pressedKeys = pg.key.get_pressed()  #during entire game time, append all key pressed into a list, which is taken as parameter in the method moveSoldier()
+        moveSoldier(pressedKeys, soldier)
         createWindow(WHITE, soldier)
 
 
