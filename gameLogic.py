@@ -53,7 +53,7 @@ def shoot(bullets):
     for bullet in bullets:
         bullet.x += BULLET_SPEED
 
-def createWindow(color, soldierRect, playersBullets):
+def createWindow(color, soldierRect, playersBullets): #this function takes care of everythin thing that appears in the display when the game starts
     pg.display.set_caption("Shoot the targets !")
     window.fill(color)
 
