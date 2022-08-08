@@ -38,10 +38,14 @@ def moveSoldier(events : list, soldier):
         soldier.x -= MOVING_SPEED
             
 def generateBullets(event, soldier, bullets: list):
+    global MAGAZINE_SIZE
+    nbBullets = 31
     if event.type == pg.KEYDOWN:
-        if event.key == pg.K_SPACE and len(bullets) < MAGAZINE_SIZE:
+        if event.key == pg.K_SPACE and len(bullets) < nbBullets:
             bullet = pg.Rect(soldier.x + SOLDIER_WIDTH, soldier.y + 10, 10, 5)
-            bullets.append(bullet)
+            bullets.append(bullet)            
+            MAGAZINE_SIZE -= 1
+            text = font.render("Number of bullets: " + str(MAGAZINE_SIZE), 1, BLACK) # render everytime a bullet is generated
             
 
 def shoot(bullets):
@@ -53,7 +57,8 @@ def createWindow(color, soldierRect, playersBullets):
     window.fill(color)
 
     window.blit(soldierImage, (soldierRect.x, soldierRect.y)) # will superpose the image into the rectangle, since we control the rectangle to move the image
-    text = font.render("Number of bullets: " + str(MAGAZINE_SIZE), 1, BLACK)
+
+    text = font.render("Number of bullets: " + str(MAGAZINE_SIZE), 1, BLACK) # text appears a first time at the beginning of the game, showcasing the amount of bullets
     window.blit(text, (10, 10))
 
     for bullet in playersBullets:    
