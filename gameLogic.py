@@ -14,6 +14,7 @@ SOLDIER_HEIGHT = 90
 MOVING_SPEED = 5
 BULLET_SPEED = 10
 MAGAZINE_SIZE = 31
+LABEL_LIMIT = 35
 
 
 window = pg.display.set_mode((WIDTH, HEIGHT))
@@ -28,13 +29,13 @@ targetImage = pg.image.load(os.path.join("images", "target.png"))
 
 
 def moveSoldier(events : list, soldier):
-    if events[pg.K_w]:
+    if events[pg.K_w] and soldier.y - MOVING_SPEED > LABEL_LIMIT:  ## add collisions with target to avoir going through targets
         soldier.y -= MOVING_SPEED
-    if events[pg.K_s]:
+    if events[pg.K_s] and soldier.y + MOVING_SPEED + SOLDIER_HEIGHT < HEIGHT:
         soldier.y += MOVING_SPEED
-    if events[pg.K_d]:
+    if events[pg.K_d] and soldier.x + MOVING_SPEED + SOLDIER_WIDTH < WIDTH:
         soldier.x += MOVING_SPEED
-    if events[pg.K_a]:        
+    if events[pg.K_a] and soldier.x - MOVING_SPEED > 0:        
         soldier.x -= MOVING_SPEED
             
 def generateBullets(event, soldier, bullets: list):
@@ -62,7 +63,7 @@ def createWindow(color, soldierRect, playersBullets):
     window.blit(text, (10, 10))
 
     for bullet in playersBullets:    
-        pg.draw.rect(window, BLACK, bullet)
+        pg.draw.rect(window, BLACK, bullet) 
         
 
     pg.display.update()
