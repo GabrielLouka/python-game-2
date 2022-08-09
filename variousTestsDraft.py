@@ -8,6 +8,7 @@ c = pg.Rect(200, 500, 45, 46)
 
 
 print(b.rect.height)
+print(b.rect.colliderect(c))
 
 
 
