@@ -1,2 +1,1 @@
 # there will be 3 types of targets depending on how many bullets they can take : low (1 hit), medium (2 hits), high (3 hits)
-# create a class target that inherits from pg.Rect() - they will all be the same size but with different colours
