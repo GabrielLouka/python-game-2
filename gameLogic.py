@@ -1,31 +1,29 @@
 from tabnanny import check
 import pygame as pg
-import os               # will be used to get the images
+import os              
 import target
 import random
 
 pg.font.init()
-# this file will contain the main loop, where the game will be running
-# creating the window : createWindow() uses parameters windth height and color to create the display
-# importing the image and represent it as a rectangle to use it
 
-FPS = 60
-WIDTH, HEIGHT = 1100, 800
+WIDTH, HEIGHT = 1700, 800
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+
 SOLDIER_WIDTH = 70
 SOLDIER_HEIGHT = 90
 TARGET_SIDE_SIZE_SMALL = 30 
 TARGET_SIDE_SIZE_MEDIUM = 50
 TARGET_SIDE_SIZE_LARGE = 70
-MOVING_SPEED = 5
-BULLET_SPEED = 20
+
+FPS = 60
+MOVING_SPEED = 7
+BULLET_SPEED = 15
 MAGAZINE_SIZE = 31
 LABEL_LIMIT = 35
 
 
 window = pg.display.set_mode((WIDTH, HEIGHT))
-font = pg.font.Font('freesansbold.ttf', 32)
 
 
 soldierImage = pg.image.load(os.path.join("images", "soldier.png"))
@@ -60,30 +58,38 @@ def shoot(bullets):
     for bullet in bullets:
         bullet.x += BULLET_SPEED
 
-def checkCollision(bullets, targets):
+def checkCollision(bullets, targets, imageToInsert):
     for bullet in bullets:
         for singleTarget in targets:
             if bullet.colliderect(singleTarget):
-                bullets.remove(bullet)
-                whiteSquare = pg.image.load(os.path.join("images", "whitesquare.png")) 
-                if isinstance(singleTarget, target.BlackTarget):
-                    whiteSquare = pg.transform.scale(whiteSquare, (TARGET_SIDE_SIZE_SMALL, TARGET_SIDE_SIZE_SMALL))
-                    window.blit(whiteSquare, (singleTarget.x, singleTarget.y))
+                bullets.remove(bullet)                
+                if isinstance(singleTarget, target.BlackTarget):  
+                    singleTarget.life -= 1
+                    if singleTarget.life == 0:
+                        
+                        imageToInsert = pg.transform.scale(imageToInsert, (TARGET_SIDE_SIZE_SMALL, TARGET_SIDE_SIZE_SMALL))                    
+                        window.blit(imageToInsert, (singleTarget.x, singleTarget.y))                    
                 if isinstance(singleTarget, target.GreenTarget):
                     singleTarget.life -= 1
                     if singleTarget.life == 0:
-                        whiteSquare = pg.transform.scale(whiteSquare, (TARGET_SIDE_SIZE_MEDIUM, TARGET_SIDE_SIZE_MEDIUM))
-                        window.blit(whiteSquare, (singleTarget.x, singleTarget.y))
+                        
+                        imageToInsert = pg.transform.scale(imageToInsert, (TARGET_SIDE_SIZE_MEDIUM, TARGET_SIDE_SIZE_MEDIUM))
+                        window.blit(imageToInsert, (singleTarget.x, singleTarget.y))
                 if isinstance(singleTarget, target.SpecialTarget):
                     singleTarget.life -= 1
                     if singleTarget.life == 0:
-                        whiteSquare = pg.transform.scale(whiteSquare, (TARGET_SIDE_SIZE_LARGE, TARGET_SIDE_SIZE_LARGE))
-                        window.blit(whiteSquare, (singleTarget.x, singleTarget.y))
+                        
+                        imageToInsert = pg.transform.scale(imageToInsert, (TARGET_SIDE_SIZE_LARGE, TARGET_SIDE_SIZE_LARGE))
+                        window.blit(imageToInsert, (singleTarget.x, singleTarget.y))
 
     
 
-def createWindow(color, soldierRect, targets, playersBullets): #this function takes care of everythin thing that appears in the display when the game starts
+def createWindow(color, soldierRect, targets, playersBullets, score): #this function takes care of everythin thing that appears in the display when the game starts
     pg.display.set_caption("Shoot the targets !")
+    whiteSquare = pg.image.load(os.path.join("images", "whitesquare.png")).convert()
+    font = pg.font.SysFont("monospace", 22)
+    textSpot = font.render(f"Score : {score}", 1, BLACK)
+    window.blit(textSpot, (500, 500))
     window.fill(color)
 
     window.blit(soldierImage, (soldierRect.x, soldierRect.y)) # will superpose the image into the rectangle, since we control the rectangle to move the image
@@ -99,16 +105,16 @@ def createWindow(color, soldierRect, targets, playersBullets): #this function ta
     for bullet in playersBullets:    
         pg.draw.rect(window, BLACK, bullet) 
 
-    checkCollision(playersBullets, targets)
+    checkCollision(playersBullets, targets, whiteSquare)
         
     pg.display.update()
 
 def generateSoldier():
     return pg.Rect(WIDTH//2, HEIGHT//3, SOLDIER_WIDTH, SOLDIER_HEIGHT)
 
-def generateTargets(soldier) -> list:
+def generateTargets() -> list:
     generated = []
-    for i in range(3):
+    for i in range(random.randint(1, 4)):
         black = target.BlackTarget(1, random.randint(2*SOLDIER_HEIGHT, WIDTH-SOLDIER_HEIGHT), random.randint(SOLDIER_HEIGHT , HEIGHT-SOLDIER_HEIGHT))
         green = target.GreenTarget(2, random.randint(2*SOLDIER_HEIGHT, WIDTH-SOLDIER_HEIGHT), random.randint(SOLDIER_HEIGHT, HEIGHT-SOLDIER_HEIGHT))
         special = target.SpecialTarget(3, random.randint(2*SOLDIER_HEIGHT, WIDTH-SOLDIER_HEIGHT), random.randint(SOLDIER_HEIGHT, HEIGHT-SOLDIER_HEIGHT))
@@ -125,7 +131,8 @@ def main():
     
     soldier = generateSoldier()  # create rectangle to which the createWindow() will superpose an image    
     soldierBullets = []
-    allTargets = generateTargets(soldier)
+    allTargets = generateTargets()
+    score = 0
 
     while(gameIsRunning):
         clock.tick(FPS)
@@ -138,7 +145,7 @@ def main():
         moveSoldier(pressedKeys, soldier)
         shoot(soldierBullets)
         # checkCollision(soldierBullets, allTargets)
-        createWindow(WHITE, soldier, allTargets, soldierBullets)
+        createWindow(WHITE, soldier, allTargets, soldierBullets, score)
 
 
 if __name__ == "__main__":
