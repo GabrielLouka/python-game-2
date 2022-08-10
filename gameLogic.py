@@ -19,7 +19,7 @@ TARGET_SIDE_SIZE_SMALL = 30
 TARGET_SIDE_SIZE_MEDIUM = 50
 TARGET_SIDE_SIZE_LARGE = 70
 MOVING_SPEED = 5
-BULLET_SPEED = 10
+BULLET_SPEED = 20
 MAGAZINE_SIZE = 31
 LABEL_LIMIT = 35
 
@@ -30,7 +30,7 @@ font = pg.font.Font('freesansbold.ttf', 32)
 
 soldierImage = pg.image.load(os.path.join("images", "soldier.png"))
 soldierImage = pg.transform.scale(soldierImage, (SOLDIER_WIDTH, SOLDIER_HEIGHT))
-# rotatedSoldierImage = pg.transform.flip(soldierImage, False, True)
+
 
 blackTargetImage = pg.image.load(os.path.join("images", "blacktarget.png"))
 blackTargetImage = pg.transform.scale(blackTargetImage, (TARGET_SIDE_SIZE_SMALL, TARGET_SIDE_SIZE_SMALL))
@@ -38,8 +38,6 @@ greenTargetImage = pg.image.load(os.path.join("images", "greentarget.png"))
 greenTargetImage = pg.transform.scale(greenTargetImage, (TARGET_SIDE_SIZE_MEDIUM + 10, TARGET_SIDE_SIZE_MEDIUM + 10))
 specialTargetImage = pg.image.load(os.path.join("images", "specialtarget.png"))
 specialTargetImage = pg.transform.scale(specialTargetImage, (TARGET_SIDE_SIZE_LARGE + 30, TARGET_SIDE_SIZE_LARGE + 30))
-
-
 
 
 def moveSoldier(events : list, soldier):
@@ -54,40 +52,33 @@ def moveSoldier(events : list, soldier):
             
 def generateBullets(event, soldier, bullets: list):    
     if event.type == pg.KEYDOWN:
-        if event.key == pg.K_SPACE:
+        if event.key == pg.K_SPACE and len(bullets) < MAGAZINE_SIZE:
             bullet = pg.Rect(soldier.x + SOLDIER_WIDTH, soldier.y + 10, 10, 5)
             bullets.append(bullet)            
             
-
 def shoot(bullets):
     for bullet in bullets:
         bullet.x += BULLET_SPEED
 
 def checkCollision(bullets, targets):
-    whiteSquare = pg.image.load(os.path.join("images", "whitesquare.png"))
     for bullet in bullets:
         for singleTarget in targets:
             if bullet.colliderect(singleTarget):
                 bullets.remove(bullet)
+                whiteSquare = pg.image.load(os.path.join("images", "whitesquare.png")) 
                 if isinstance(singleTarget, target.BlackTarget):
-                    cover = pg.Rect(singleTarget.x, singleTarget.y, TARGET_SIDE_SIZE_SMALL, TARGET_SIDE_SIZE_SMALL)
                     whiteSquare = pg.transform.scale(whiteSquare, (TARGET_SIDE_SIZE_SMALL, TARGET_SIDE_SIZE_SMALL))
                     window.blit(whiteSquare, (singleTarget.x, singleTarget.y))
-                    pg.draw.rect(window, WHITE, cover)
                 if isinstance(singleTarget, target.GreenTarget):
                     singleTarget.life -= 1
                     if singleTarget.life == 0:
-                        cover = pg.Rect(singleTarget.x, singleTarget.y, TARGET_SIDE_SIZE_MEDIUM, TARGET_SIDE_SIZE_MEDIUM)
                         whiteSquare = pg.transform.scale(whiteSquare, (TARGET_SIDE_SIZE_MEDIUM, TARGET_SIDE_SIZE_MEDIUM))
                         window.blit(whiteSquare, (singleTarget.x, singleTarget.y))
-                        pg.draw.rect(window, WHITE, cover)
                 if isinstance(singleTarget, target.SpecialTarget):
                     singleTarget.life -= 1
                     if singleTarget.life == 0:
-                        cover = pg.Rect(singleTarget.x, singleTarget.y, TARGET_SIDE_SIZE_LARGE, TARGET_SIDE_SIZE_LARGE)
                         whiteSquare = pg.transform.scale(whiteSquare, (TARGET_SIDE_SIZE_LARGE, TARGET_SIDE_SIZE_LARGE))
                         window.blit(whiteSquare, (singleTarget.x, singleTarget.y))
-                        pg.draw.rect(window, WHITE, cover)
 
     
 
@@ -103,12 +94,12 @@ def createWindow(color, soldierRect, targets, playersBullets): #this function ta
         if isinstance(singleTarget, target.GreenTarget):
             window.blit(greenTargetImage, (singleTarget.rect.x, singleTarget.rect.y))
         if isinstance(singleTarget, target.SpecialTarget):
-            window.blit(specialTargetImage, (singleTarget.rect.x, singleTarget.rect.y))
-
-    
+            window.blit(specialTargetImage, (singleTarget.rect.x, singleTarget.rect.y))    
 
     for bullet in playersBullets:    
         pg.draw.rect(window, BLACK, bullet) 
+
+    checkCollision(playersBullets, targets)
         
     pg.display.update()
 
@@ -117,7 +108,7 @@ def generateSoldier():
 
 def generateTargets(soldier) -> list:
     generated = []
-    for i in range(2):
+    for i in range(3):
         black = target.BlackTarget(1, random.randint(2*SOLDIER_HEIGHT, WIDTH-SOLDIER_HEIGHT), random.randint(SOLDIER_HEIGHT , HEIGHT-SOLDIER_HEIGHT))
         green = target.GreenTarget(2, random.randint(2*SOLDIER_HEIGHT, WIDTH-SOLDIER_HEIGHT), random.randint(SOLDIER_HEIGHT, HEIGHT-SOLDIER_HEIGHT))
         special = target.SpecialTarget(3, random.randint(2*SOLDIER_HEIGHT, WIDTH-SOLDIER_HEIGHT), random.randint(SOLDIER_HEIGHT, HEIGHT-SOLDIER_HEIGHT))
@@ -146,7 +137,7 @@ def main():
         pressedKeys = pg.key.get_pressed()  #during entire game time, append all key pressed into a list, which is taken as parameter in the method moveSoldier()
         moveSoldier(pressedKeys, soldier)
         shoot(soldierBullets)
-        checkCollision(soldierBullets, allTargets)
+        # checkCollision(soldierBullets, allTargets)
         createWindow(WHITE, soldier, allTargets, soldierBullets)
 
 
