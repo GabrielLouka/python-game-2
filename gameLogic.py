@@ -121,10 +121,10 @@ def generateTargets(soldier) -> list:
         black = target.BlackTarget(1, random.randint(2*SOLDIER_HEIGHT, WIDTH-SOLDIER_HEIGHT), random.randint(SOLDIER_HEIGHT , HEIGHT-SOLDIER_HEIGHT))
         green = target.GreenTarget(2, random.randint(2*SOLDIER_HEIGHT, WIDTH-SOLDIER_HEIGHT), random.randint(SOLDIER_HEIGHT, HEIGHT-SOLDIER_HEIGHT))
         special = target.SpecialTarget(3, random.randint(2*SOLDIER_HEIGHT, WIDTH-SOLDIER_HEIGHT), random.randint(SOLDIER_HEIGHT, HEIGHT-SOLDIER_HEIGHT))
-        if not black.rect.colliderect(green) and not black.rect.colliderect(special) and not green.rect.colliderect(special) and not green.rect.colliderect(soldier) and not green.rect.colliderect(soldier) and not green.rect.colliderect(soldier):
+        if not black.rect.colliderect(green) and not black.rect.colliderect(special) and not green.rect.colliderect(special):
             generated.append(black)
             generated.append(green)
-            generated.append(special)
+            generated.append(special) 
 
     return generated
 
