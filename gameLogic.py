@@ -19,8 +19,14 @@ TARGET_SIDE_SIZE_LARGE = 70
 FPS = 60
 MOVING_SPEED = 7
 BULLET_SPEED = 15
-MAGAZINE_SIZE = 31
+MAGAZINE_SIZE = 15
 LABEL_LIMIT = 35
+
+BLACK_HIT = pg.USEREVENT + 1
+GREEN_HIT = pg.USEREVENT + 2
+SPECIAL_HIT = pg.USEREVENT + 3
+BULLET_SHOT = pg.USEREVENT + 4
+TARGET_HIT = pg.USEREVENT + 5
 
 
 window = pg.display.set_mode((WIDTH, HEIGHT))
@@ -48,48 +54,49 @@ def moveSoldier(events : list, soldier):
     if events[pg.K_a] and soldier.x - MOVING_SPEED > 0:        
         soldier.x -= MOVING_SPEED
             
+
 def generateBullets(event, soldier, bullets: list):    
     if event.type == pg.KEYDOWN:
         if event.key == pg.K_SPACE and len(bullets) < MAGAZINE_SIZE:
+            pg.event.post(pg.event.Event(BULLET_SHOT))
             bullet = pg.Rect(soldier.x + SOLDIER_WIDTH, soldier.y + 10, 10, 5)
             bullets.append(bullet)            
             
+
 def shoot(bullets):
     for bullet in bullets:
         bullet.x += BULLET_SPEED
 
+
 def checkCollision(bullets, targets, imageToInsert):
     for bullet in bullets:
         for singleTarget in targets:
-            if bullet.colliderect(singleTarget):
-                bullets.remove(bullet)                
+            if bullet.colliderect(singleTarget):                
+                # bullets.remove(bullet)                               
                 if isinstance(singleTarget, target.BlackTarget):  
                     singleTarget.life -= 1
-                    if singleTarget.life == 0:
-                        
+                    if singleTarget.life == 0:                        
+                        pg.event.post(pg.event.Event(BLACK_HIT))    ### we declared these types of events, here we "create" the signal to be used in the main loop
                         imageToInsert = pg.transform.scale(imageToInsert, (TARGET_SIDE_SIZE_SMALL, TARGET_SIDE_SIZE_SMALL))                    
                         window.blit(imageToInsert, (singleTarget.x, singleTarget.y))                    
                 if isinstance(singleTarget, target.GreenTarget):
                     singleTarget.life -= 1
                     if singleTarget.life == 0:
-                        
+                        pg.event.post(pg.event.Event(GREEN_HIT))    
                         imageToInsert = pg.transform.scale(imageToInsert, (TARGET_SIDE_SIZE_MEDIUM, TARGET_SIDE_SIZE_MEDIUM))
                         window.blit(imageToInsert, (singleTarget.x, singleTarget.y))
                 if isinstance(singleTarget, target.SpecialTarget):
                     singleTarget.life -= 1
-                    if singleTarget.life == 0:
-                        
+                    if singleTarget.life == 0:                        
+                        pg.event.post(pg.event.Event(SPECIAL_HIT))    
                         imageToInsert = pg.transform.scale(imageToInsert, (TARGET_SIDE_SIZE_LARGE, TARGET_SIDE_SIZE_LARGE))
                         window.blit(imageToInsert, (singleTarget.x, singleTarget.y))
-
     
 
-def createWindow(color, soldierRect, targets, playersBullets, score): #this function takes care of everythin thing that appears in the display when the game starts
+def createWindow(color, soldierRect, targets, playersBullets, score, nbBuls): #this function takes care of everything that appears in the display when the game starts
     pg.display.set_caption("Shoot the targets !")
     whiteSquare = pg.image.load(os.path.join("images", "whitesquare.png")).convert()
     font = pg.font.SysFont("monospace", 22)
-    textSpot = font.render(f"Score : {score}", 1, BLACK)
-    window.blit(textSpot, (500, 500))
     window.fill(color)
 
     window.blit(soldierImage, (soldierRect.x, soldierRect.y)) # will superpose the image into the rectangle, since we control the rectangle to move the image
@@ -105,12 +112,20 @@ def createWindow(color, soldierRect, targets, playersBullets, score): #this func
     for bullet in playersBullets:    
         pg.draw.rect(window, BLACK, bullet) 
 
+
+    scoreText = font.render(f"Score : {score}", 1, BLACK)
+    bulletsText = font.render(f"Number of bullets : {nbBuls}", 1, BLACK)
+    window.blit(scoreText, (10, 10))
+    window.blit(bulletsText, (WIDTH - 300, 10))
+
     checkCollision(playersBullets, targets, whiteSquare)
         
     pg.display.update()
 
+
 def generateSoldier():
     return pg.Rect(WIDTH//2, HEIGHT//3, SOLDIER_WIDTH, SOLDIER_HEIGHT)
+
 
 def generateTargets() -> list:
     generated = []
@@ -125,6 +140,7 @@ def generateTargets() -> list:
 
     return generated
 
+
 def main():
     clock = pg.time.Clock()
     gameIsRunning = True
@@ -133,6 +149,7 @@ def main():
     soldierBullets = []
     allTargets = generateTargets()
     score = 0
+    nbBul = int(MAGAZINE_SIZE)
 
     while(gameIsRunning):
         clock.tick(FPS)
@@ -140,12 +157,21 @@ def main():
             if event.type == pg.QUIT:
                 gameIsRunning = False
             generateBullets(event, soldier, soldierBullets)
+
+            if event.type == BLACK_HIT:
+                score += 1
+            if event.type == GREEN_HIT:
+                score += 2
+            if event.type == SPECIAL_HIT:
+                score += 3
+
+            if event.type == BULLET_SHOT:
+                nbBul -= 1  
                     
         pressedKeys = pg.key.get_pressed()  #during entire game time, append all key pressed into a list, which is taken as parameter in the method moveSoldier()
         moveSoldier(pressedKeys, soldier)
         shoot(soldierBullets)
-        # checkCollision(soldierBullets, allTargets)
-        createWindow(WHITE, soldier, allTargets, soldierBullets, score)
+        createWindow(WHITE, soldier, allTargets, soldierBullets, score, nbBul)
 
 
 if __name__ == "__main__":
