@@ -1,14 +1,13 @@
 import target
 from gameLogic import pg
 
-b = target.BlackTarget(1, 200, 500)
-c = pg.Rect(200, 500, 45, 46)
+a = [1,2,3,4,5,6,7]
+print(len(a))
+
+a.remove(4)
+print(len(a))
 
 
-
-
-print(b.rect.height)
-print(b.rect.colliderect(c))
 
 
 
