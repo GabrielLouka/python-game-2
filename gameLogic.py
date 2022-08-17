@@ -19,7 +19,7 @@ TARGET_SIDE_SIZE_LARGE = 70
 FPS = 60
 MOVING_SPEED = 7
 BULLET_SPEED = 15
-MAGAZINE_SIZE = 35
+MAGAZINE_SIZE = 18
 LABEL_LIMIT = 35
 
 BLACK_HIT = pg.USEREVENT + 1    #custom events
@@ -31,7 +31,7 @@ BULLET_SHOT = pg.USEREVENT + 5
 
 window = pg.display.set_mode((WIDTH, HEIGHT))
 
-whiteSquare = pg.image.load(os.path.join("images", "whitesquare.png")).convert()
+whiteSquare = pg.image.load(os.path.join("images", "whitesquare.png"))
 soldierImage = pg.image.load(os.path.join("images", "soldier.png"))
 soldierImage = pg.transform.scale(soldierImage, (SOLDIER_WIDTH, SOLDIER_HEIGHT))
 
@@ -67,8 +67,8 @@ def shootAndChekCollisions(bullets, targets, imageToInsert):
     for bullet in bullets:
         bullet.x += BULLET_SPEED        
         for singleTarget in targets:
-            if bullet.colliderect(singleTarget):                              
-                # bullets.remove(bullet)               
+            if bullet.colliderect(singleTarget): 
+                bullets.remove(bullet)                                      
                 if isinstance(singleTarget, target.BlackTarget):  
                     singleTarget.life -= 1
                     if singleTarget.life == 0:                        
@@ -87,6 +87,7 @@ def shootAndChekCollisions(bullets, targets, imageToInsert):
                         pg.event.post(pg.event.Event(SPECIAL_HIT))                                                                     
                         imageToInsert = pg.transform.scale(imageToInsert, (TARGET_SIDE_SIZE_LARGE, TARGET_SIDE_SIZE_LARGE))
                         window.blit(imageToInsert, (singleTarget.x, singleTarget.y))     
+    pg.display.update()
          
 
 
@@ -112,9 +113,7 @@ def createWindow(color, soldierRect, targets, playersBullets, score, numberBulle
     scoreText = font.render(f"Score : {score}", 1, BLACK)
     bulletsText = font.render(f"Number of bullets : {numberBullets}", 1, BLACK)
     window.blit(scoreText, (10, 10))
-    window.blit(bulletsText, (WIDTH - 300, 10))
-
-    shootAndChekCollisions(playersBullets, targets, whiteSquare)
+    window.blit(bulletsText, (WIDTH - 300, 10))    
         
     pg.display.update()
 
@@ -166,6 +165,7 @@ def main():
                                                      
         pressedKeys = pg.key.get_pressed()
         moveSoldier(pressedKeys, soldier)
+        shootAndChekCollisions(soldierBullets, allTargets, whiteSquare)
         createWindow(WHITE, soldier, allTargets, soldierBullets, score, numberBullets)
 
 
